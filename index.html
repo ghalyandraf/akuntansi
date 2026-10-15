@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Akuntansi Profesional - Perusahaan Komputer Hara</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS with Style for Professional Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-indigo-50/30 to-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-50 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/30 text-white">
+                    <i data-lucide="calculator" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Perusahaan Komputer Hara</h1>
+                    <p class="text-xs text-slate-400">Sistem Siklus Akuntansi Interaktif • Maret 19X2</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700/60 text-xs font-medium text-slate-300 shadow-inner">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Mode Edit Interaktif & Auto-Calculate Aktif</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
+
+        <!-- Ringkasan Statistik (Dashboard Cards) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="bg-blue-50 text-blue-600 p-3.5 rounded-2xl">
+                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Neraca Sisa Awal</p>
+                    <h3 class="text-lg font-extrabold text-slate-800">Rp 30.500.000</h3>
+                </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="bg-purple-50 text-purple-600 p-3.5 rounded-2xl">
+                    <i data-lucide="receipt" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Transaksi</p>
+                    <h3 class="text-lg font-extrabold text-slate-800" id="stat-total-jurnal">10 Transaksi</h3>
+                </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="bg-emerald-50 text-emerald-600 p-3.5 rounded-2xl">
+                    <i data-lucide="trending-up" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Pendapatan Jasa</p>
+                    <h3 class="text-lg font-extrabold text-emerald-700" id="stat-pendapatan">Rp 7.600.000</h3>
+                </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="bg-rose-50 text-rose-600 p-3.5 rounded-2xl">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Beban Operasional</p>
+                    <h3 class="text-lg font-extrabold text-rose-700" id="stat-beban">Rp 6.100.000</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex overflow-x-auto gap-3 border-b border-slate-200 pb-2">
+            <button onclick="switchTab('jurnal')" id="btn-jurnal" class="tab-btn px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2.5 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Jurnal Umum (Bisa Diedit)
+            </button>
+            <button onclick="switchTab('neracasisa')" id="btn-neracasisa" class="tab-btn px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2.5 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i data-lucide="scale" class="w-4 h-4"></i> Neraca Sisa 31 Maret
+            </button>
+            <button onclick="switchTab('labarugi')" id="btn-labarugi" class="tab-btn px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2.5 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Laba Rugi & Daftar Beban
+            </button>
+        </div>
+
+        <!-- Tab Content 1: Jurnal Umum -->
+        <div id="tab-jurnal" class="tab-pane space-y-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center flex-wrap gap-4 bg-gradient-to-r from-slate-50 to-white">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Jurnal Umum Transaksi (Maret 19X2)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Klik langsung pada kolom Debit atau Kredit untuk mengubah nilainya.</p>
+                    </div>
+                    <button onclick="exportJurnalToExcel()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-600/20 transition-all transform active:scale-95">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export Excel Profesional
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3.5 px-6 font-bold w-20 text-center">Ref</th>
+                                <th class="py-3.5 px-6 font-bold w-32 text-center">Tanggal</th>
+                                <th class="py-3.5 px-6 font-bold">Keterangan Akun & Penjelasan</th>
+                                <th class="py-3.5 px-6 font-bold text-right w-48">Debit (Rp)</th>
+                                <th class="py-3.5 px-6 font-bold text-right w-48">Kredit (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-jurnal" class="divide-y divide-slate-100 text-sm">
+                            <!-- Diisi via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content 2: Neraca Sisa -->
+        <div id="tab-neracasisa" class="tab-pane hidden space-y-6">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center flex-wrap gap-4 bg-gradient-to-r from-slate-50 to-white">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Neraca Sisa Perusahaan Komputer Hara</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Per 31 Maret 19X2 • Nilai otomatis menyesuaikan perubahan jurnal.</p>
+                    </div>
+                    <button onclick="exportNeracaToExcel()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-600/20 transition-all transform active:scale-95">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export Excel Profesional
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3.5 px-6 font-bold">Nama Akun</th>
+                                <th class="py-3.5 px-6 font-bold text-right w-56">Debit (Rp)</th>
+                                <th class="py-3.5 px-6 font-bold text-right w-56">Kredit (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-neraca-sisa" class="divide-y divide-slate-100 text-sm">
+                            <!-- Diisi via JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-900 text-white font-bold">
+                                <td class="py-4 px-6 text-sm">Total Neraca Sisa</td>
+                                <td class="py-4 px-6 text-right font-mono text-base" id="total-neraca-debit">Rp 0</td>
+                                <td class="py-4 px-6 text-right font-mono text-base" id="total-neraca-kredit">Rp 0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content 3: Laba Rugi & Daftar Beban -->
+        <div id="tab-labarugi" class="tab-pane hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Laba Bersih Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-lg font-bold text-slate-900">Perhitungan Laba Bersih</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Total Pendapatan Jasa dikurangi seluruh beban operasional.</p>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between py-3 px-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-600 font-medium">Total Pendapatan Jasa</span>
+                            <span class="font-bold text-emerald-600 font-mono" id="lr-pendapatan">+ Rp 7.600.000</span>
+                        </div>
+                        <div class="flex justify-between py-3 px-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-600 font-medium">Total Beban Operasional</span>
+                            <span class="font-bold text-rose-600 font-mono" id="lr-beban">- Rp 6.100.000</span>
+                        </div>
+                        <div class="flex justify-between py-4 px-5 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-600/20 text-base font-bold">
+                            <span>Laba Bersih Maret 19X2</span>
+                            <span class="font-mono" id="lr-bersih">Rp 1.500.000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daftar Beban Terbesar ke Terkecil -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h2 class="text-lg font-bold text-slate-900">Daftar Beban (Terbesar ke Terkecil)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Urutan otomatis berdasarkan besaran nominal beban.</p>
+                    </div>
+                    <div class="space-y-3" id="list-daftar-beban">
+                        <!-- Diisi via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <p>Sistem Akuntansi Perusahaan Komputer Hara • Dibuat dengan antarmuka profesional & penyimpanan lokal.</p>
+    </footer>
+
+    <!-- JavaScript Logika & Kalkulasi Real-Time -->
+    <script>
+        // Data Transaksi Awal
+        let jurnalData = [
+            { id: 0, ref: 'a', tanggal: '02/03', ket: 'Kas', debit: 45000000, kredit: 0 },
+            { id: 1, ref: 'a', tanggal: '02/03', ket: '    Wesel Bayar', debit: 0, kredit: 45000000 },
+            { id: 2, ref: 'b', tanggal: '05/03', ket: 'Tanah', debit: 40000000, kredit: 0 },
+            { id: 3, ref: 'b', tanggal: '05/03', ket: '    Kas', debit: 0, kredit: 40000000 },
+            { id: 4, ref: 'c', tanggal: '08/03', ket: 'Kas', debit: 5000000, kredit: 0 },
+            { id: 5, ref: 'c', tanggal: '08/03', ket: '    Pendapatan Jasa', debit: 0, kredit: 5000000 },
+            { id: 6, ref: 'd', tanggal: '10/03', ket: 'Perlengkapan', debit: 300000, kredit: 0 },
+            { id: 7, ref: 'd', tanggal: '10/03', ket: '    Hutang', debit: 0, kredit: 300000 },
+            { id: 8, ref: 'e', tanggal: '12/03', ket: 'Piutang', debit: 2600000, kredit: 0 },
+            { id: 9, ref: 'e', tanggal: '12/03', ket: '    Pendapatan Jasa', debit: 0, kredit: 2600000 },
+            { id: 10, ref: 'f', tanggal: '15/03', ket: 'Wesel Bayar (Pinjaman)', debit: 1200000, kredit: 0 },
+            { id: 11, ref: 'f', tanggal: '15/03', ket: '    Kas', debit: 0, kredit: 1200000 },
+            { id: 12, ref: 'g', tanggal: '20/03', ket: 'Beban Gaji', debit: 3000000, kredit: 0 },
+            { id: 13, ref: 'g', tanggal: '20/03', ket: 'Beban Sewa', debit: 1500000, kredit: 0 },
+            { id: 14, ref: 'g', tanggal: '20/03', ket: 'Beban Bunga', debit: 400000, kredit: 0 },
+            { id: 15, ref: 'g', tanggal: '20/03', ket: '    Kas', debit: 0, kredit: 4900000 },
+            { id: 16, ref: 'h', tanggal: '22/03', ket: 'Kas', debit: 3100000, kredit: 0 },
+            { id: 17, ref: 'h', tanggal: '22/03', ket: '    Piutang', debit: 0, kredit: 3100000 },
+            { id: 18, ref: 'i', tanggal: '25/03', ket: 'Beban Listrik', debit: 200000, kredit: 0 },
+            { id: 19, ref: 'i', tanggal: '25/03', ket: '    Hutang Usaha (YAD)', debit: 0, kredit: 200000 },
+            { id: 20, ref: 'j', tanggal: '30/03', ket: 'Prive Hara (Pengambilan Pribadi)', debit: 1800000, kredit: 0 },
+            { id: 21, ref: 'j', tanggal: '30/03', ket: '    Kas', debit: 0, kredit: 1800000 }
+        ];
+
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        // Update nilai saat user mengetik di input tabel jurnal
+        function updateJurnalValue(id, field, value) {
+            const num = parseFloat(value) || 0;
+            jurnalData[id][field] = num;
+            renderAll();
+        }
+
+        // Render Semua Komponen & Hitung Otomatis Neraca Sisa
+        function renderAll() {
+            // 1. Render Tabel Jurnal
+            const tbodyJurnal = document.getElementById('tabel-jurnal');
+            tbodyJurnal.innerHTML = '';
+            jurnalData.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 text-center font-bold text-slate-400">(${item.ref})</td>
+                    <td class="py-3 px-6 text-center text-slate-600 font-medium">${item.tanggal}</td>
+                    <td class="py-3 px-6 text-slate-800 font-medium">${item.ket}</td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" value="${item.debit}" onchange="updateJurnalValue(${idx}, 'debit', this.value)" 
+                            class="w-full text-right bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-lg px-3 py-1.5 font-mono text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </td>
+                    <td class="py-3 px-6 text-right">
+                        <input type="number" value="${item.kredit}" onchange="updateJurnalValue(${idx}, 'kredit', this.value)" 
+                            class="w-full text-right bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 rounded-lg px-3 py-1.5 font-mono text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </td>
+                `;
+                tbodyJurnal.appendChild(tr);
+            });
+            document.getElementById('stat-total-jurnal').innerText = jurnalData.length + ' Baris';
+
+            // 2. Kalkulasi Dinamis Akun Neraca Sisa
+            // Sisa Awal Neraca Sisa
+            let kas = 26000000, piutang = 4500000, perlengkapan = 0, tanah = 0;
+            let hutang = 2000000, weselBayar = 0, modalHara = 28500000, prive = 0;
+            let pendapatanJasa = 0;
+            let bebanGaji = 0, bebanSewa = 0, bebanBunga = 0, bebanListrik = 0;
+
+            jurnalData.forEach(j => {
+                const ket = j.ket.trim().toLowerCase();
+                const d = j.debit;
+                const k = j.kredit;
+
+                if (ket === 'kas') { kas += d; kas -= k; }
+                if (ket === 'piutang') { piutang += d; piutang -= k; }
+                if (ket === 'perlengkapan') { perlengkapan += d; perlengkapan -= k; }
+                if (ket === 'tanah') { tanah += d; tanah -= k; }
+                if (ket.includes('hutang')) { hutang += k; hutang -= d; }
+                if (ket.includes('wesel bayar')) { weselBayar += k; weselBayar -= d; }
+                if (ket.includes('prive')) { prive += d; prive -= k; }
+                if (ket.includes('pendapatan jasa')) { pendapatanJasa += k; pendapatanJasa -= d; }
+                if (ket.includes('beban gaji')) { bebanGaji += d; bebanGaji -= k; }
+                if (ket.includes('beban sewa')) { bebanSewa += d; bebanSewa -= k; }
+                if (ket.includes('beban bunga')) { bebanBunga += d; bebanBunga -= k; }
+                if (ket.includes('beban listrik')) { bebanListrik += d; bebanListrik -= k; }
+            });
+
+            const neracaData = [
+                { akun: 'Kas', debit: kas > 0 ? kas : 0, kredit: kas < 0 ? Math.abs(kas) : 0 },
+                { akun: 'Piutang', debit: piutang > 0 ? piutang : 0, kredit: 0 },
+                { akun: 'Perlengkapan', debit: perlengkapan > 0 ? perlengkapan : 0, kredit: 0 },
+                { akun: 'Tanah', debit: tanah > 0 ? tanah : 0, kredit: 0 },
+                { akun: 'Hutang', debit: 0, kredit: hutang > 0 ? hutang : 0 },
+                { akun: 'Wesel Bayar', debit: 0, kredit: weselBayar > 0 ? weselBayar : 0 },
+                { akun: 'Modal Hara', debit: 0, kredit: modalHara > 0 ? modalHara : 0 },
+                { akun: 'Prive Hara', debit: prive > 0 ? prive : 0, kredit: 0 },
+                { akun: 'Pendapatan Jasa', debit: 0, kredit: pendapatanJasa > 0 ? pendapatanJasa : 0 },
+                { akun: 'Beban Gaji', debit: bebanGaji > 0 ? bebanGaji : 0, kredit: 0 },
+                { akun: 'Beban Sewa', debit: bebanSewa > 0 ? bebanSewa : 0, kredit: 0 },
+                { akun: 'Beban Bunga', debit: bebanBunga > 0 ? bebanBunga : 0, kredit: 0 },
+                { akun: 'Beban Listrik', debit: bebanListrik > 0 ? bebanListrik : 0, kredit: 0 }
+            ];
+
+            const tbodyNeraca = document.getElementById('tabel-neraca-sisa');
+            tbodyNeraca.innerHTML = '';
+            let totDebit = 0, totKredit = 0;
+
+            neracaData.forEach(n => {
+                totDebit += n.debit;
+                totKredit += n.kredit;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-6 font-semibold text-slate-800">${n.akun}</td>
+                    <td class="py-3 px-6 text-right font-mono text-slate-700">${n.debit > 0 ? formatRupiah(n.debit) : '-'}</td>
+                    <td class="py-3 px-6 text-right font-mono text-slate-700">${n.kredit > 0 ? formatRupiah(n.kredit) : '-'}</td>
+                `;
+                tbodyNeraca.appendChild(tr);
+            });
+
+            document.getElementById('total-neraca-debit').innerText = formatRupiah(totDebit);
+            document.getElementById('total-neraca-kredit').innerText = formatRupiah(totKredit);
+
+            // 3. Laba Rugi & Daftar Beban
+            const totalBeban = bebanGaji + bebanSewa + bebanBunga + bebanListrik;
+            const labaBersih = pendapatanJasa - totalBeban;
+
+            document.getElementById('stat-pendapatan').innerText = formatRupiah(pendapatanJasa);
+            document.getElementById('stat-beban').innerText = formatRupiah(totalBeban);
+            document.getElementById('lr-pendapatan').innerText = '+ ' + formatRupiah(pendapatanJasa);
+            document.getElementById('lr-beban').innerText = '- ' + formatRupiah(totalBeban);
+            document.getElementById('lr-bersih').innerText = formatRupiah(labaBersih);
+
+            // Urutkan Beban dari Terbesar ke Terkecil
+            const arrBeban = [
+                { nama: 'Beban Gaji', jumlah: bebanGaji },
+                { nama: 'Beban Sewa', jumlah: bebanSewa },
+                { nama: 'Beban Bunga', jumlah: bebanBunga },
+                { nama: 'Beban Listrik', jumlah: bebanListrik }
+            ].sort((a, b) => b.jumlah - a.jumlah);
+
+            const containerBeban = document.getElementById('list-daftar-beban');
+            containerBeban.innerHTML = '';
+            arrBeban.forEach((b, idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-extrabold shadow-sm">${idx + 1}</span>
+                        <span class="font-bold text-slate-700 text-sm">${b.nama}</span>
+                    </div>
+                    <span class="font-extrabold font-mono text-slate-900 text-sm">${formatRupiah(b.jumlah)}</span>
+                `;
+                containerBeban.appendChild(div);
+            });
+        }
+
+        // Export Jurnal ke Excel Profesional
+        function exportJurnalToExcel() {
+            const wsData = [
+                ["PERUSAHAAN KOMPUTER HARA - JURNAL UMUM (MARET 19X2)"],
+                [],
+                ["Ref", "Tanggal", "Keterangan Akun & Penjelasan", "Debit (Rp)", "Kredit (Rp)"]
+            ];
+
+            jurnalData.forEach(j => {
+                wsData.push([`(${j.ref})`, j.tanggal, j.ket.trim(), j.debit || 0, j.kredit || 0]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const range = XLSX.utils.decode_range(ws['!ref']);
+
+            // Judul Header
+            ws['A1'].s = {
+                font: { name: 'Inter', sz: 14, bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "0F172A" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            // Header Tabel
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cellRef = XLSX.utils.encode_cell({ r: 2, c: C });
+                if (!ws[cellRef]) continue;
+                ws[cellRef].s = {
+                    font: { name: 'Inter', sz: 11, bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "334155" } },
+                    alignment: { horizontal: C >= 3 ? "right" : "center", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "CBD5E1" } }, bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+                        left: { style: "thin", color: { rgb: "CBD5E1" } }, right: { style: "thin", color: { rgb: "CBD5E1" } }
+                    }
+                };
+            }
+
+            // Isi Data
+            for (let R = 3; R <= range.e.r; ++R) {
+                const isEven = (R % 2 === 0);
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cellRef]) continue;
+
+                    let align = "left";
+                    if (C === 0 || C === 1) align = "center";
+                    if (C >= 3) align = "right";
+
+                    let numFmt = C >= 3 && ws[cellRef].v > 0 ? '"Rp "#,##0' : undefined;
+
+                    ws[cellRef].s = {
+                        font: { name: 'Inter', sz: 10, color: { rgb: "1E293B" } },
+                        fill: { fgColor: { rgb: isEven ? "F8FAFC" : "FFFFFF" } },
+                        alignment: { horizontal: align, vertical: "center" },
+                        numFmt: numFmt,
+                        border: {
+                            top: { style: "thin", color: { rgb: "E2E8F0" } }, bottom: { style: "thin", color: { rgb: "E2E8F0" } },
+                            left: { style: "thin", color: { rgb: "E2E8F0" } }, right: { style: "thin", color: { rgb: "E2E8F0" } }
+                        }
+                    };
+                }
+            }
+
+            ws['!cols'] = [{wch: 8}, {wch: 12}, {wch: 35}, {wch: 20}, {wch: 20}];
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Jurnal Umum");
+            XLSX.writeFile(wb, "Jurnal_Umum_Hara_Pro.xlsx");
+        }
+
+        // Export Neraca Sisa ke Excel Profesional
+        function exportNeracaToExcel() {
+            const tbodyNeracaRows = document.querySelectorAll('#tabel-neraca-sisa tr');
+            const wsData = [
+                ["PERUSAHAAN KOMPUTER HARA - NERACA SISA (31 MARET 19X2)"],
+                [],
+                ["Nama Akun", "Debit (Rp)", "Kredit (Rp)"]
+            ];
+
+            let totD = 0, totK = 0;
+            tbodyNeracaRows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length === 3) {
+                    const akun = cols[0].innerText;
+                    const dText = cols[1].innerText.replace(/[^0-9]/g, '');
+                    const kText = cols[2].innerText.replace(/[^0-9]/g, '');
+                    const dVal = dText ? parseInt(dText) : 0;
+                    const kVal = kText ? parseInt(kText) : 0;
+                    wsData.push([akun, dVal, kVal]);
+                    totD += dVal;
+                    totK += kVal;
+                }
+            });
+            wsData.push(["Total Neraca Sisa", totD, totK]);
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const range = XLSX.utils.decode_range(ws['!ref']);
+
+            ws['A1'].s = {
+                font: { name: 'Inter', sz: 14, bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "0F172A" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cellRef = XLSX.utils.encode_cell({ r: 2, c: C });
+                if (!ws[cellRef]) continue;
+                ws[cellRef].s = {
+                    font: { name: 'Inter', sz: 11, bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "334155" } },
+                    alignment: { horizontal: C > 0 ? "right" : "left", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { rgb: "CBD5E1" } }, bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+                        left: { style: "thin", color: { rgb: "CBD5E1" } }, right: { style: "thin", color: { rgb: "CBD5E1" } }
+                    }
+                };
+            }
+
+            for (let R = 3; R <= range.e.r; ++R) {
+                const isTotal = (R === range.e.r);
+                const isEven = (R % 2 === 0);
+
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cellRef]) continue;
+
+                    let numFmt = C > 0 && ws[cellRef].v > 0 ? '"Rp "#,##0' : undefined;
+
+                    ws[cellRef].s = {
+                        font: { name: 'Inter', sz: 10, bold: isTotal, color: { rgb: isTotal ? "FFFFFF" : "1E293B" } },
+                        fill: { fgColor: { rgb: isTotal ? "0F172A" : (isEven ? "F8FAFC" : "FFFFFF") } },
+                        alignment: { horizontal: C > 0 ? "right" : "left", vertical: "center" },
+                        numFmt: numFmt,
+                        border: {
+                            top: { style: "thin", color: { rgb: "CBD5E1" } }, bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+                            left: { style: "thin", color: { rgb: "CBD5E1" } }, right: { style: "thin", color: { rgb: "CBD5E1" } }
+                        }
+                    };
+                }
+            }
+
+            ws['!cols'] = [{wch: 32}, {wch: 22}, {wch: 22}];
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Neraca Sisa");
+            XLSX.writeFile(wb, "Neraca_Sisa_Hara_Pro.xlsx");
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.className = "tab-btn px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2.5 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200";
+            });
+
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabName);
+            activeBtn.className = "tab-btn px-6 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2.5 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+            
+            lucide.createIcons();
+        }
+
+        window.onload = function() {
+            renderAll();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
